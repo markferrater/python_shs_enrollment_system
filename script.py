@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QComboBox, QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QScrollArea, \
     QPushButton, QGroupBox, QLineEdit, QMessageBox
 from PyQt6.QtGui import QIcon, QPixmap
-import sys
+import sys, os, json
 
 from PyQt6.QtCore import Qt
 
@@ -96,7 +96,7 @@ class MainWindow(QWidget):
                            padding: 6px;
                            border: 1px solid #ccc;
                            border-radius: 6px;
-                                                  
+
                            """)
 
         self.combo = QComboBox()
@@ -109,7 +109,7 @@ class MainWindow(QWidget):
                     padding: 6px 20px 6px 6px;
 
                 }
-                
+
                 QComboBox QAbstractItemView {
                     border: 1px solid #ccc;
                     selection-background-color: #d6dbfa;
@@ -396,7 +396,6 @@ class MainWindow(QWidget):
         self.academic_combo2.addItem('1st Semester')
         self.academic_combo2.addItem('2st Semester')
 
-
         self.academic_combo3 = QComboBox()
         self.academic_combo3.setPlaceholderText('School Year')
         self.academic_combo3.setStyleSheet("""
@@ -416,7 +415,6 @@ class MainWindow(QWidget):
         self.academic_combo3.addItem('2025 - 2026')
         self.academic_combo3.addItem('2026 - 2027')
 
-
         self.academic_edit1.setPlaceholderText('Previous School')
 
         academic_layout1.addWidget(self.academic_edit1, 1)
@@ -432,17 +430,9 @@ class MainWindow(QWidget):
 
         # ============ Getting Data ==============
 
-        #line edits
+        # line edits
 
         # combo boxes
-
-
-
-
-
-
-
-
 
         # group_box.setLayout(group_layout)
         # bottom_layout.addWidget(group_box)
@@ -461,7 +451,7 @@ class MainWindow(QWidget):
                 border-radius: 8px;
                 font-size: 14px;
             }
-        
+
         QPushButton:hover {
         background-color: #d6dbfa;
             }
@@ -547,20 +537,47 @@ class MainWindow(QWidget):
         msg.setText("Form submitted successfully!")
         msg.exec()
 
-        # You can also print or store data here
-        print("First Name:", first_name)
-        print("Last Name:", last_name)
-        print("DOB:", dob)
-        print("Gender:", gender)
-        print("Email:", email)
-        print("Phone:", phone)
-        print("Guardian Name:", guardian_name)
-        print("Guardian Phone:", guardian_phone)
-        print("Guardian Relation:", guardian_relation)
-        print("Previous School:", prev_school)
-        print("Strand:", strand)
-        print("Semester:", semester)
-        print("School Year:", school_year)
+        # ================= SAVE DATA TO FILE =================
+
+        file_path = "students.json"
+
+        # New record
+        student_data = {
+            "first_name": first_name,
+            "last_name": last_name,
+            "date_of_birth": dob,
+            "gender": gender,
+            "email": email,
+            "phone": phone,
+            "guardian": {
+                "name": guardian_name,
+                "phone": guardian_phone,
+                "relation": guardian_relation
+            },
+            "academic": {
+                "previous_school": prev_school,
+                "strand": strand,
+                "semester": semester,
+                "school_year": school_year
+            }
+        }
+
+        # If file exists → read existing data
+        if os.path.exists(file_path):
+            with open(file_path, "r", encoding="utf-8") as file:
+                try:
+                    data = json.load(file)
+                except json.JSONDecodeError:
+                    data = []
+        else:
+            data = []
+
+        # Append new record
+        data.append(student_data)
+
+        # Write back to file
+        with open(file_path, "w", encoding="utf-8") as file:
+            json.dump(data, file, indent=4)
 
 
 if __name__ == '__main__':
